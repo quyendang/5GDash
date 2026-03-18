@@ -14,7 +14,7 @@ import signal
 import threading
 import mimetypes
 import subprocess
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from urllib.parse import urlparse
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -416,7 +416,7 @@ def main():
     port = CONFIG.get('port', 2222)
 
     threading.Thread(target=_poll_loop, daemon=True).start()
-    server = HTTPServer((host, port), Handler)
+    server = ThreadingHTTPServer((host, port), Handler)
 
     def _stop(sig, frame):
         print('\n[5GDash] Stopping...')
