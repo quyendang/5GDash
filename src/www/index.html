@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#eef2f8">
+<title>5GDash</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ╔══ TOP BAR ══════════════════════════════════════════════════════════╗ -->
+<header class="topbar">
+  <button class="topbar-menu" aria-label="Menu">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <line x1="3" y1="5"  x2="17" y2="5"/>
+      <line x1="3" y1="10" x2="17" y2="10"/>
+      <line x1="3" y1="15" x2="17" y2="15"/>
+    </svg>
+  </button>
+  <span class="topbar-title">Dashboard</span>
+  <div class="topbar-actions">
+    <!-- Wifi clients badge -->
+    <button class="topbar-btn badge-wrap" id="btn-clients-toggle" title="Thiết bị kết nối">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/>
+      </svg>
+      <span class="topbar-badge" id="client-count">0</span>
+    </button>
+    <!-- Connection status dot -->
+    <span class="status-dot" id="conn-dot" title="Trạng thái kết nối"></span>
+  </div>
+</header>
+
+<main class="page">
+
+  <!-- ╔══ CARD: THIẾT BỊ ════════════════════════════════════════════════╗ -->
+  <div class="card" id="card-system">
+    <div class="card-head">
+      <div class="card-icon blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+        </svg>
+      </div>
+      <div class="card-head-text">
+        <div class="card-eyebrow">THIẾT BỊ</div>
+        <div class="card-heading" id="sys-hostname">5G CPE</div>
+      </div>
+      <span class="badge-mode" id="badge-netmode">--</span>
+    </div>
+
+    <div class="stat-pills">
+      <div class="pill">
+        <div class="pill-label">Hoạt động</div>
+        <div class="pill-value" id="sys-uptime">--</div>
+      </div>
+      <div class="pill">
+        <div class="pill-label">Nhiệt độ</div>
+        <div class="pill-value red" id="sys-temp">--</div>
+      </div>
+      <div class="pill">
+        <div class="pill-label">Data</div>
+        <div class="pill-value blue" id="sys-data">--</div>
+      </div>
+    </div>
+
+    <div class="prog-list">
+      <div class="prog-row">
+        <span class="prog-name">CPU Load</span>
+        <span class="prog-val" id="cpu-pct">--%</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill purple" id="cpu-bar" style="width:0%"></div></div>
+
+      <div class="prog-row">
+        <span class="prog-name">RAM</span>
+        <span class="prog-val" id="ram-val">-- / --</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill blue" id="ram-bar" style="width:0%"></div></div>
+
+      <div class="prog-row">
+        <span class="prog-name">ROM</span>
+        <span class="prog-val" id="rom-val">-- / --</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill orange" id="rom-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- ╔══ CARD: TÍN HIỆU 5G ════════════════════════════════════════════╗ -->
+  <div class="card" id="card-signal">
+    <div class="card-head">
+      <div class="card-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="card-head-text">
+        <div class="card-eyebrow">TÍN HIỆU</div>
+        <div class="card-heading" id="sig-heading">-- / --</div>
+      </div>
+      <div class="signal-bars" id="sig-bars">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <!-- Tags: loại mạng, band, nhà mạng -->
+    <div class="tag-row" id="net-tags">
+      <span class="tag tag-primary" id="tag-mode">--</span>
+      <span class="tag tag-neutral" id="tag-band">--</span>
+      <span class="tag tag-neutral" id="tag-op">--</span>
+    </div>
+
+    <!-- RSRP / RSRQ / SINR progress bars -->
+    <div class="prog-list sig-prog">
+      <div class="prog-row">
+        <span class="prog-name">RSRP</span>
+        <div class="prog-right">
+          <span class="prog-val bold" id="val-rsrp">--</span>
+          <span class="prog-unit">dBm</span>
+          <span class="qual-badge" id="qual-rsrp"></span>
+        </div>
+      </div>
+      <div class="prog-track"><div class="prog-fill green" id="bar-rsrp" style="width:0%"></div></div>
+
+      <div class="prog-row">
+        <span class="prog-name">RSRQ</span>
+        <div class="prog-right">
+          <span class="prog-val bold" id="val-rsrq">--</span>
+          <span class="prog-unit">dB</span>
+          <span class="qual-badge" id="qual-rsrq"></span>
+        </div>
+      </div>
+      <div class="prog-track"><div class="prog-fill blue" id="bar-rsrq" style="width:0%"></div></div>
+
+      <div class="prog-row">
+        <span class="prog-name">SINR</span>
+        <div class="prog-right">
+          <span class="prog-val bold" id="val-sinr">--</span>
+          <span class="prog-unit">dB</span>
+          <span class="qual-badge" id="qual-sinr"></span>
+        </div>
+      </div>
+      <div class="prog-track"><div class="prog-fill teal" id="bar-sinr" style="width:0%"></div></div>
+    </div>
+
+    <!-- Detail info grid -->
+    <div class="info-grid" id="info-grid">
+      <div class="info-item"><span class="info-k">Nhà mạng</span><span class="info-v" id="v-op">--</span></div>
+      <div class="info-item"><span class="info-k">Cell ID</span><span class="info-v mono" id="v-cell">--</span></div>
+      <div class="info-item"><span class="info-k">PCI</span><span class="info-v mono" id="v-pci">--</span></div>
+      <div class="info-item"><span class="info-k">ARFCN</span><span class="info-v mono" id="v-arfcn">--</span></div>
+      <div class="info-item"><span class="info-k">MCC/MNC</span><span class="info-v mono" id="v-mcc">--</span></div>
+      <div class="info-item"><span class="info-k">Trạng thái</span><span class="info-v" id="v-state">--</span></div>
+    </div>
+
+    <!-- CA chips -->
+    <div class="ca-row" id="ca-row"></div>
+  </div>
+
+  <!-- ╔══ CARD: TRAFFIC ════════════════════════════════════════════════╗ -->
+  <div class="card" id="card-traffic">
+    <div class="card-head">
+      <div class="card-icon purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+          <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+        </svg>
+      </div>
+      <div class="card-head-text">
+        <div class="card-eyebrow">LƯU LƯỢNG</div>
+        <div class="card-heading">Tốc độ mạng</div>
+      </div>
+      <button class="btn-ghost" id="btn-reset-traffic">↺ Reset</button>
+    </div>
+
+    <div class="speed-row">
+      <div class="speed-box">
+        <span class="speed-dir dl">↓</span>
+        <span class="speed-num" id="speed-dl">0.0</span>
+        <span class="speed-unit" id="unit-dl">Mbps</span>
+        <span class="speed-total" id="total-dl">--</span>
+      </div>
+      <div class="chart-wrap">
+        <svg id="traffic-svg" viewBox="0 0 300 70" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="grad-dl" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3b7adb" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#3b7adb" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="grad-ul" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path id="fill-dl" fill="url(#grad-dl)" d=""/>
+          <path id="fill-ul" fill="url(#grad-ul)" d=""/>
+          <path id="line-dl" fill="none" stroke="#3b7adb" stroke-width="2" stroke-linecap="round" d=""/>
+          <path id="line-ul" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" d=""/>
+        </svg>
+      </div>
+      <div class="speed-box right">
+        <span class="speed-dir ul">↑</span>
+        <span class="speed-num" id="speed-ul">0.0</span>
+        <span class="speed-unit" id="unit-ul">Mbps</span>
+        <span class="speed-total" id="total-ul">--</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ╔══ CARD: KHÓA BĂNG TẦN ═════════════════════════════════════════╗ -->
+  <div class="card" id="card-band">
+    <div class="card-head">
+      <div class="card-icon orange">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <div class="card-head-text">
+        <div class="card-eyebrow">KHÓA BĂNG TẦN</div>
+        <div class="card-heading">Band Lock</div>
+      </div>
+      <span class="lock-badge" id="lock-badge">Auto</span>
+    </div>
+
+    <div class="mode-row" id="mode-row">
+      <button class="mode-btn active" data-mode="auto">Tự động</button>
+      <button class="mode-btn" data-mode="4g">4G only</button>
+      <button class="mode-btn" data-mode="5g">5G only</button>
+      <button class="mode-btn" data-mode="4g5g">4G + 5G</button>
+    </div>
+
+    <div class="band-grp">
+      <div class="band-grp-title">LTE Bands</div>
+      <div class="band-chips" id="lte-chips"></div>
+    </div>
+    <div class="band-grp">
+      <div class="band-grp-title">NR5G Bands</div>
+      <div class="band-chips" id="nr5g-chips"></div>
+    </div>
+
+    <div class="band-actions">
+      <button class="btn-primary" id="btn-apply-bands">Áp dụng</button>
+      <button class="btn-secondary" id="btn-unlock-bands">Bỏ khóa tất cả</button>
+    </div>
+  </div>
+
+  <!-- ╔══ CARD: THIẾT BỊ KẾT NỐI ════════════════════════════════════════╗ -->
+  <div class="card" id="card-clients">
+    <div class="card-head">
+      <div class="card-icon orange2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div class="card-head-text">
+        <div class="card-eyebrow">QUẢN LÝ</div>
+        <div class="card-heading">Thiết bị kết nối (<span id="client-count2">0</span>)</div>
+      </div>
+      <button class="btn-ghost" id="btn-refresh-clients">↺</button>
+    </div>
+    <div id="client-list" class="client-list">
+      <div class="client-empty">Đang tải...</div>
+    </div>
+  </div>
+
+  <!-- ╔══ CARD: THÔNG TIN MODULE ═══════════════════════════════════════╗ -->
+  <div class="card" id="card-modem">
+    <div class="card-head">
+      <div class="card-icon teal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="4" width="16" height="16" rx="2"/>
+          <rect x="9" y="9" width="6" height="6"/>
+          <line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/>
+          <line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/>
+          <line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/>
+          <line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/>
+        </svg>
+      </div>
+      <div class="card-head-text">
+        <div class="card-eyebrow">MODULE 5G</div>
+        <div class="card-heading" id="m-model">RM520N-GL</div>
+      </div>
+      <button class="btn-danger-ghost" id="btn-reconnect">Kết nối lại</button>
+    </div>
+    <div class="info-grid">
+      <div class="info-item"><span class="info-k">Firmware</span><span class="info-v mono small" id="m-fw">--</span></div>
+      <div class="info-item"><span class="info-k">IMEI</span><span class="info-v mono" id="m-imei">--</span></div>
+      <div class="info-item"><span class="info-k">ICCID</span><span class="info-v mono small" id="m-iccid">--</span></div>
+      <div class="info-item"><span class="info-k">Nhiệt độ</span><span class="info-v" id="m-temp">--</span></div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="js/app.js"></script>
+</body>
+</html>

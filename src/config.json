@@ -1,0 +1,7 @@
+{
+  "port":          2222,
+  "host":          "0.0.0.0",
+  "modem_port":    "auto",
+  "poll_interval": 3,
+  "www_dir":       "/opt/5gdash/www"
+}

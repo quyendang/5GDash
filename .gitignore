@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Secrets / local config overrides
+src/config.local.json
+
+# Demo/test screenshots
+*.png
+*.jpg
