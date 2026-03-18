@@ -101,6 +101,10 @@ body {
   50%      { box-shadow: 0 0 0 5px rgba(22,163,74,0.1); }
 }
 
+#btn-polling-toggle { transition: color 0.2s, background 0.15s; }
+#btn-polling-toggle.polling-on  { color: var(--green); }
+#btn-polling-toggle.polling-off { color: var(--muted); }
+
 /* ── Page ────────────────────────────────────────────────────────────────── */
 .page {
   display: flex; flex-direction: column; gap: var(--gap);

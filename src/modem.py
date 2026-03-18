@@ -184,6 +184,12 @@ class ModemManager:
         self._serial = None
         self._lock   = threading.Lock()
 
+    def close(self):
+        with self._lock:
+            if self._serial:
+                self._serial.close()
+                self._serial = None
+
     def _ser(self):
         if self._serial is None or not self._serial.is_open():
             port = detect_port() if self._port == 'auto' else self._port

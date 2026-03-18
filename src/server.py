@@ -226,13 +226,27 @@ _latest_lock = threading.Lock()
 _sse_clients = []
 _sse_lock    = threading.Lock()
 
+_polling_enabled = True
+_polling_lock    = threading.Lock()
+
 
 def _poll_loop():
     interval = CONFIG.get('poll_interval', 3)
+    port_released = False
     prev_rx = prev_tx = 0
     prev_ts = time.time()
 
     while True:
+        with _polling_lock:
+            enabled = _polling_enabled
+        if not enabled:
+            if not port_released:
+                modem.close()
+                port_released = True
+            time.sleep(1)
+            continue
+        port_released = False
+
         try:
             data    = modem.get_full_status()
             sysinfo = get_sysinfo()
@@ -329,6 +343,10 @@ class Handler(BaseHTTPRequestHandler):
         elif path == '/api/device':
             self._json(modem.get_device_info())
 
+        elif path == '/api/polling':
+            with _polling_lock:
+                self._json({'enabled': _polling_enabled})
+
         elif path == '/api/stream':
             q = queue.Queue(maxsize=20)
             with _sse_lock:
@@ -404,6 +422,13 @@ class Handler(BaseHTTPRequestHandler):
         elif path == '/api/reconnect':
             ok = modem.reconnect()
             self._json({'ok': ok})
+
+        elif path == '/api/polling':
+            global _polling_enabled
+            with _polling_lock:
+                _polling_enabled = bool(body.get('enabled', True))
+                enabled = _polling_enabled
+            self._json({'ok': True, 'enabled': enabled})
 
         else:
             self._json({'error': 'not found'}, 404)

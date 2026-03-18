@@ -542,3 +542,36 @@ function startPolling() {
 
 if (typeof EventSource !== 'undefined') connectSSE();
 else startPolling();
+
+// ── Polling toggle ──────────────────────────────────────────────────────────
+
+let _pollingEnabled = true;
+
+function updatePollingBtn() {
+  const btn = $('btn-polling-toggle');
+  if (!btn) return;
+  btn.classList.toggle('polling-on',  _pollingEnabled);
+  btn.classList.toggle('polling-off', !_pollingEnabled);
+  btn.title = _pollingEnabled
+    ? 'Đang polling — nhấn để tắt (nhường port cho tool khác)'
+    : 'Polling đã tắt — nhấn để bật lại';
+}
+
+fetch(API + '/api/polling').then(r => r.json()).then(d => {
+  _pollingEnabled = d.enabled;
+  updatePollingBtn();
+}).catch(() => {});
+
+$('btn-polling-toggle').onclick = async () => {
+  try {
+    const r = await post('/api/polling', { enabled: !_pollingEnabled });
+    if (r.ok) {
+      _pollingEnabled = r.enabled;
+      updatePollingBtn();
+      toast(
+        _pollingEnabled ? 'Đã bật modem polling' : 'Đã tắt polling — port nhường cho tool khác',
+        _pollingEnabled ? 'success' : ''
+      );
+    }
+  } catch { toast('Lỗi kết nối', 'error'); }
+};
