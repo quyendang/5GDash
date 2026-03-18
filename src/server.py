@@ -325,7 +325,12 @@ class Handler(BaseHTTPRequestHandler):
 
         if path == '/api/status':
             with _latest_lock:
-                self._json(_latest.copy() if _latest else modem.get_full_status())
+                data = _latest.copy()
+            if not data:
+                with _polling_lock:
+                    if _polling_enabled:
+                        data = modem.get_full_status()
+            self._json(data)
 
         elif path == '/api/sysinfo':
             self._json(get_sysinfo())
@@ -334,14 +339,18 @@ class Handler(BaseHTTPRequestHandler):
             self._json(get_connected_devices())
 
         elif path == '/api/bands':
+            with _polling_lock:
+                enabled = _polling_enabled
             self._json({
                 'lte_bands':  sorted(LTE_BANDS.keys()),
                 'nr5g_bands': sorted(NR5G_BANDS.keys()),
-                'current':    modem.get_band_config(),
+                'current':    modem.get_band_config() if enabled else {},
             })
 
         elif path == '/api/device':
-            self._json(modem.get_device_info())
+            with _polling_lock:
+                enabled = _polling_enabled
+            self._json(modem.get_device_info() if enabled else {})
 
         elif path == '/api/polling':
             with _polling_lock:
@@ -407,21 +416,24 @@ class Handler(BaseHTTPRequestHandler):
         except Exception:
             body = {}
 
+        with _polling_lock:
+            _poll_ok = _polling_enabled
+
         if path == '/api/band-lock':
-            ok = modem.set_band_lock(body.get('lte'), body.get('nr5g'))
-            self._json({'ok': ok})
+            ok = modem.set_band_lock(body.get('lte'), body.get('nr5g')) if _poll_ok else False
+            self._json({'ok': ok, 'polling_off': not _poll_ok})
 
         elif path == '/api/network-mode':
-            ok = modem.set_network_mode(body.get('mode', 'auto'))
-            self._json({'ok': ok})
+            ok = modem.set_network_mode(body.get('mode', 'auto')) if _poll_ok else False
+            self._json({'ok': ok, 'polling_off': not _poll_ok})
 
         elif path == '/api/traffic-reset':
-            ok = modem.reset_traffic()
-            self._json({'ok': ok})
+            ok = modem.reset_traffic() if _poll_ok else False
+            self._json({'ok': ok, 'polling_off': not _poll_ok})
 
         elif path == '/api/reconnect':
-            ok = modem.reconnect()
-            self._json({'ok': ok})
+            ok = modem.reconnect() if _poll_ok else False
+            self._json({'ok': ok, 'polling_off': not _poll_ok})
 
         elif path == '/api/polling':
             global _polling_enabled

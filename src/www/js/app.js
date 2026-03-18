@@ -27,6 +27,7 @@ const LANG = {
     toast_reconnect_sent: 'Đã gửi lệnh kết nối lại',
     toast_poll_on: 'Đã bật modem polling',
     toast_poll_off: 'Đã tắt polling — port nhường cho tool khác',
+    toast_polling_off: 'Polling đang tắt — bật power để thao tác',
     toast_error: 'Lỗi kết nối',
     poll_active_title: 'Đang polling — nhấn để tắt (nhường port cho tool khác)',
     poll_paused_title: 'Polling đã tắt — nhấn để bật lại',
@@ -53,6 +54,7 @@ const LANG = {
     toast_reconnect_sent: 'Reconnect command sent',
     toast_poll_on: 'Modem polling enabled',
     toast_poll_off: 'Polling paused — port released',
+    toast_polling_off: 'Polling is off — enable it first',
     toast_error: 'Connection error',
     poll_active_title: 'Polling active — click to pause (release port)',
     poll_paused_title: 'Polling paused — click to resume',
@@ -295,6 +297,11 @@ buildChips();
 
 // ── Band lock actions ──────────────────────────────────────────────────────
 
+function guardPolling(r) {
+  if (r && r.polling_off) { toast(t('toast_polling_off'), 'error'); return false; }
+  return true;
+}
+
 $('btn-apply-bands').onclick = async () => {
   const lte  = [...selLTE];
   const nr5g = [...selNR5G];
@@ -304,6 +311,7 @@ $('btn-apply-bands').onclick = async () => {
   toast(t('toast_applying'));
   try {
     const r = await post('/api/band-lock', { lte, nr5g });
+    if (!guardPolling(r)) return;
     if (r.ok) toast(`${t('toast_locked')}: ${[...lte,...nr5g].join(', ')}`, 'success');
     else toast(t('toast_lock_error'), 'error');
   } catch { toast(t('toast_error'), 'error'); }
@@ -314,6 +322,7 @@ $('btn-unlock-bands').onclick = async () => {
   buildChips();
   try {
     const r = await post('/api/band-lock', { lte: [], nr5g: [] });
+    if (!guardPolling(r)) return;
     if (r.ok) toast(t('toast_unlocked'), 'success');
   } catch { toast(t('toast_error'), 'error'); }
 };
@@ -323,6 +332,7 @@ qsa('.mode-btn').forEach(btn => {
     toast(t('toast_changing_mode'));
     try {
       const r = await post('/api/network-mode', { mode: btn.dataset.mode });
+      if (!guardPolling(r)) return;
       if (r.ok) {
         qsa('.mode-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -334,7 +344,8 @@ qsa('.mode-btn').forEach(btn => {
 
 $('btn-reset-traffic').onclick = async () => {
   try {
-    await post('/api/traffic-reset', {});
+    const r = await post('/api/traffic-reset', {});
+    if (!guardPolling(r)) return;
     toast(t('toast_traffic_reset'), 'success');
   } catch { toast(t('toast_error'), 'error'); }
 };
@@ -343,6 +354,7 @@ $('btn-reconnect').onclick = async () => {
   toast(t('toast_reconnecting'));
   try {
     const r = await post('/api/reconnect', {});
+    if (!guardPolling(r)) return;
     if (r.ok) toast(t('toast_reconnect_sent'), 'success');
   } catch { toast(t('toast_error'), 'error'); }
 };
