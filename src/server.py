@@ -226,7 +226,7 @@ _latest_lock = threading.Lock()
 _sse_clients = []
 _sse_lock    = threading.Lock()
 
-_polling_enabled = True
+_polling_enabled = False  # OFF by default — user must explicitly enable
 _polling_lock    = threading.Lock()
 
 

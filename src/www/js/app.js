@@ -626,7 +626,7 @@ else startPolling();
 
 // ── Polling toggle ──────────────────────────────────────────────────────────
 
-let _pollingEnabled = true;
+let _pollingEnabled = false;
 
 function updatePollingBtn() {
   const btn = $('btn-polling-toggle');
@@ -636,10 +636,9 @@ function updatePollingBtn() {
   btn.title = t(_pollingEnabled ? 'poll_active_title' : 'poll_paused_title');
 }
 
-fetch(API + '/api/polling').then(r => r.json()).then(d => {
-  _pollingEnabled = d.enabled;
-  updatePollingBtn();
-}).catch(() => {});
+// On every page load (including F5): reset server polling to OFF
+updatePollingBtn();
+post('/api/polling', { enabled: false }).catch(() => {});
 
 $('btn-polling-toggle').onclick = async () => {
   try {
