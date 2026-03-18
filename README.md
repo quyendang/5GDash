@@ -4,6 +4,8 @@ A lightweight, mobile-friendly web dashboard for 5G CPE devices running **OpenWr
 
 Access your router's full 5G status, signal quality, traffic, and band locking — all from a clean, flat UI at `http://192.168.1.1:2222`.
 
+![5GDash Screenshot](screenshot.png)
+
 ---
 
 ## Features
