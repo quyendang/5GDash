@@ -406,6 +406,7 @@ class Handler(BaseHTTPRequestHandler):
             self._serve_file(safe)
 
     def do_POST(self):
+        global _polling_enabled
         parsed = urlparse(self.path)
         path   = parsed.path.rstrip('/')
 
@@ -436,7 +437,6 @@ class Handler(BaseHTTPRequestHandler):
             self._json({'ok': ok, 'polling_off': not _poll_ok})
 
         elif path == '/api/polling':
-            global _polling_enabled
             with _polling_lock:
                 _polling_enabled = bool(body.get('enabled', True))
                 enabled = _polling_enabled
