@@ -212,9 +212,12 @@ body {
   padding: 4px 12px; border-radius: 20px;
   font-size: 0.75rem; font-weight: 600;
 }
-.tag-primary { background: var(--blue-bg);   color: var(--blue); }
-.tag-neutral { background: var(--bg);        color: var(--text2); border: 1px solid var(--border); }
-.tag-green   { background: var(--green-bg);  color: var(--green); }
+.tag-primary  { background: var(--blue-bg);   color: var(--blue); }
+.tag-neutral  { background: var(--bg);        color: var(--text2); border: 1px solid var(--border); }
+.tag-green    { background: var(--green-bg);  color: var(--green); }
+.tag-tech-lte { background: var(--orange-bg); color: var(--orange); }
+.tag-tech-nsa { background: var(--teal-bg);   color: var(--teal); }
+.tag-tech-sa  { background: var(--green-bg);  color: var(--green); font-weight: 700; }
 
 .qual-badge {
   font-size: 0.65rem; font-weight: 700; padding: 1px 7px; border-radius: 10px;

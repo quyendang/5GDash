@@ -433,8 +433,16 @@ function applyData(data) {
   set('sig-heading', nrBand ? `${mainBand} + ${nrBand}` : mainBand);
 
   // Tags
-  const modeText = cell.mode || '--';
-  set('tag-mode', modeText);
+  const modeText  = cell.mode || '--';
+  const techLabel = data.tech_label || modeText;
+  const tagMode   = $('tag-mode');
+  tagMode.textContent = techLabel;
+  tagMode.className = 'tag ' + (
+    /5G SA/i.test(techLabel)  ? 'tag-tech-sa'  :
+    /5G NSA/i.test(techLabel) ? 'tag-tech-nsa' :
+    /LTE/i.test(techLabel)    ? 'tag-tech-lte' : 'tag-primary'
+  );
+
   set('tag-band', nrBand ? `${mainBand} + ${nrBand}` : mainBand);
   set('tag-op',   op.operator || '--');
 

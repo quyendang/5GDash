@@ -162,6 +162,29 @@ def _parse_band_str(band_str):
     return f"{prefix}{m.group(2)}"
 
 
+def _build_tech_label(mode, ca_list):
+    """Build detailed tech label: '5G NSA EN-DC (LTE 2CA + NR 2CA)', '4G LTE (3CA)', etc."""
+    lte_cc = sum(1 for c in ca_list if 'LTE'  in c.get('band', '').upper())
+    nr_cc  = sum(1 for c in ca_list if 'NR5G' in c.get('band', '').upper()
+                                    or  'NR '  in c.get('band', '').upper())
+    if '5G NSA' in mode:
+        parts = []
+        if lte_cc > 1:  parts.append(f'LTE {lte_cc}CA')
+        elif lte_cc:    parts.append('LTE')
+        if nr_cc > 1:   parts.append(f'NR {nr_cc}CA')
+        elif nr_cc:     parts.append('NR')
+        if parts:
+            return f'5G NSA EN-DC ({" + ".join(parts)})'
+        return '5G NSA'
+    elif '5G SA' in mode:
+        if nr_cc > 1: return f'5G SA ({nr_cc}CA)'
+        return '5G SA'
+    elif '4G' in mode or 'LTE' in mode:
+        if lte_cc > 1: return f'4G LTE ({lte_cc}CA)'
+        return '4G LTE'
+    return mode
+
+
 def _mode_from_str(s):
     """'NR5G-NSA' → '5G NSA', 'LTE' → '4G LTE', etc."""
     s = s.upper()
@@ -344,23 +367,32 @@ class ModemManager:
     # ── Operator ──────────────────────────────────────────────────────────────
 
     def get_operator(self):
+        # AT+QSPN reads SIM-resident name → always shows home operator
+        # (avoids showing Gmobile when Viettel SIM uses shared 5G infra)
+        spn_name = None
+        raw_spn = self._at('AT+QSPN')
+        m = re.search(r'\+QSPN:\s*"([^"]*)"', raw_spn)
+        if m and m.group(1).strip():
+            spn_name = m.group(1).strip()
+
         raw = self._at('AT+COPS?')
         m = re.search(r'\+COPS:\s*(\d+),(\d+),"([^"]+)",(\d+)', raw)
         if not m:
-            return {'operator': '--', 'access_type': '--'}
+            return {'operator': spn_name or '--', 'access_type': '--'}
 
         fmt  = int(m.group(2))
         name = m.group(3)
         act  = int(m.group(4))
 
-        act_map = {0:'2G',2:'3G',7:'4G LTE',11:'5G NSA',12:'5G SA'}
+        act_map = {0:'2G', 2:'3G', 7:'4G LTE', 11:'5G NSA', 12:'5G SA'}
 
-        # Format 2 = numeric PLMN → look up name
         if fmt == 2:
-            name = _plmn_name(name)
+            cops_name = _plmn_name(name)
+        else:
+            cops_name = name
 
         return {
-            'operator':    name,
+            'operator':    spn_name or cops_name,
             'access_type': act_map.get(act, f'Act{act}'),
         }
 
@@ -626,12 +658,16 @@ class ModemManager:
         # ── Net mode ───────────────────────────────────────────────────────
         net_mode = self.get_network_mode()
 
+        # ── Tech label ─────────────────────────────────────────────────────
+        tech_label = _build_tech_label(cell.get('mode', ''), ca)
+
         return {
-            'timestamp': datetime.now().isoformat(),
-            'cell':      cell,
-            'nr5g':      nr5g,
-            'operator':  operator,
-            'net_mode':  net_mode,
+            'timestamp':  datetime.now().isoformat(),
+            'cell':       cell,
+            'nr5g':       nr5g,
+            'operator':   operator,
+            'net_mode':   net_mode,
+            'tech_label': tech_label,
             'signal':    sig,
             'traffic':   self.get_traffic(),
             'temps':     self.get_temperature(),
