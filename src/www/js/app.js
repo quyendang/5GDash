@@ -3,6 +3,79 @@
 
 const API = '';
 
+// ── i18n ────────────────────────────────────────────────────────────────────
+
+const LANG = {
+  vi: {
+    device_title: 'THIẾT BỊ', uptime: 'Hoạt động', temperature: 'Nhiệt độ',
+    signal_title: 'TÍN HIỆU', operator: 'Nhà mạng', cell_state: 'Trạng thái',
+    traffic_title: 'LƯU LƯỢNG', network_speed: 'Tốc độ mạng',
+    bandlock_title: 'KHÓA BĂNG TẦN', auto: 'Tự động',
+    apply: 'Áp dụng', unlock_all: 'Bỏ khóa tất cả',
+    mgmt_title: 'QUẢN LÝ', connected_devices: 'Thiết bị kết nối',
+    reconnect: 'Kết nối lại', loading: 'Đang tải...',
+    no_devices: 'Không có thiết bị nào', load_error: 'Không thể tải danh sách',
+    qual_excellent: 'Xuất sắc', qual_good: 'Tốt', qual_fair: 'Khá', qual_poor: 'Yếu',
+    toast_select_band: 'Hãy chọn ít nhất 1 băng tần',
+    toast_applying: 'Đang áp dụng...', toast_locked: 'Đã khóa',
+    toast_lock_error: 'Lỗi khi khóa băng tần',
+    toast_unlocked: 'Đã bỏ khóa tất cả băng tần',
+    toast_changing_mode: 'Đang thay đổi chế độ...',
+    toast_mode_updated: 'Đã cập nhật chế độ mạng',
+    toast_traffic_reset: 'Đã reset bộ đếm traffic',
+    toast_reconnecting: 'Đang kết nối lại...',
+    toast_reconnect_sent: 'Đã gửi lệnh kết nối lại',
+    toast_poll_on: 'Đã bật modem polling',
+    toast_poll_off: 'Đã tắt polling — port nhường cho tool khác',
+    toast_error: 'Lỗi kết nối',
+    poll_active_title: 'Đang polling — nhấn để tắt (nhường port cho tool khác)',
+    poll_paused_title: 'Polling đã tắt — nhấn để bật lại',
+    clients_btn_title: 'Thiết bị kết nối',
+  },
+  en: {
+    device_title: 'DEVICE', uptime: 'Uptime', temperature: 'Temp',
+    signal_title: 'SIGNAL', operator: 'Operator', cell_state: 'Status',
+    traffic_title: 'TRAFFIC', network_speed: 'Network Speed',
+    bandlock_title: 'BAND LOCK', auto: 'Auto',
+    apply: 'Apply', unlock_all: 'Unlock All',
+    mgmt_title: 'MANAGEMENT', connected_devices: 'Connected Devices',
+    reconnect: 'Reconnect', loading: 'Loading...',
+    no_devices: 'No devices found', load_error: 'Failed to load list',
+    qual_excellent: 'Excellent', qual_good: 'Good', qual_fair: 'Fair', qual_poor: 'Poor',
+    toast_select_band: 'Select at least 1 band',
+    toast_applying: 'Applying...', toast_locked: 'Locked',
+    toast_lock_error: 'Band lock failed',
+    toast_unlocked: 'All bands unlocked',
+    toast_changing_mode: 'Changing mode...',
+    toast_mode_updated: 'Network mode updated',
+    toast_traffic_reset: 'Traffic counter reset',
+    toast_reconnecting: 'Reconnecting...',
+    toast_reconnect_sent: 'Reconnect command sent',
+    toast_poll_on: 'Modem polling enabled',
+    toast_poll_off: 'Polling paused — port released',
+    toast_error: 'Connection error',
+    poll_active_title: 'Polling active — click to pause (release port)',
+    poll_paused_title: 'Polling paused — click to resume',
+    clients_btn_title: 'Connected Devices',
+  },
+};
+
+let currentLang = localStorage.getItem('5gdash_lang') || 'vi';
+
+function t(key) { return (LANG[currentLang] || LANG.vi)[key] || key; }
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  const langBtn = $('btn-lang');
+  if (langBtn) langBtn.textContent = currentLang === 'vi' ? 'EN' : 'VI';
+  const dot = $('conn-dot');
+  if (dot) dot.title = t('conn_status') || '';
+  const clientsBtn = $('btn-clients-toggle');
+  if (clientsBtn) clientsBtn.title = t('clients_btn_title');
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 const $  = id  => document.getElementById(id);
@@ -80,9 +153,9 @@ async function post(path, body) {
 // Thresholds in real dBm (backend now returns correct values, no ÷10 issue)
 
 const QUAL = {
-  rsrp: [[-80,'Xuất sắc','excellent'],[-90,'Tốt','good'],[-100,'Khá','fair'],[-Infinity,'Yếu','poor']],
-  rsrq: [[-10,'Xuất sắc','excellent'],[-15,'Tốt','good'],[-20,'Khá','fair'],[-Infinity,'Yếu','poor']],
-  sinr: [[20,'Xuất sắc','excellent'],[10,'Tốt','good'],[0,'Khá','fair'],[-Infinity,'Yếu','poor']],
+  rsrp: [[-80,'qual_excellent','excellent'],[-90,'qual_good','good'],[-100,'qual_fair','fair'],[-Infinity,'qual_poor','poor']],
+  rsrq: [[-10,'qual_excellent','excellent'],[-15,'qual_good','good'],[-20,'qual_fair','fair'],[-Infinity,'qual_poor','poor']],
+  sinr: [[20,'qual_excellent','excellent'],[10,'qual_good','good'],[0,'qual_fair','fair'],[-Infinity,'qual_poor','poor']],
 };
 
 const CLASS_MAP = {
@@ -91,8 +164,8 @@ const CLASS_MAP = {
 
 function getQual(val, levels) {
   if (val == null) return null;
-  for (const [thr, label, key] of levels) {
-    if (val >= thr) return { label, cls: CLASS_MAP[key] };
+  for (const [thr, labelKey, key] of levels) {
+    if (val >= thr) return { label: t(labelKey), cls: CLASS_MAP[key] };
   }
   return null;
 }
@@ -226,14 +299,14 @@ $('btn-apply-bands').onclick = async () => {
   const lte  = [...selLTE];
   const nr5g = [...selNR5G];
   if (!lte.length && !nr5g.length) {
-    toast('Hãy chọn ít nhất 1 băng tần', 'error'); return;
+    toast(t('toast_select_band'), 'error'); return;
   }
-  toast('Đang áp dụng...');
+  toast(t('toast_applying'));
   try {
     const r = await post('/api/band-lock', { lte, nr5g });
-    if (r.ok) toast(`Đã khóa: ${[...lte,...nr5g].join(', ')}`, 'success');
-    else toast('Lỗi khi khóa băng tần', 'error');
-  } catch { toast('Không kết nối được server', 'error'); }
+    if (r.ok) toast(`${t('toast_locked')}: ${[...lte,...nr5g].join(', ')}`, 'success');
+    else toast(t('toast_lock_error'), 'error');
+  } catch { toast(t('toast_error'), 'error'); }
 };
 
 $('btn-unlock-bands').onclick = async () => {
@@ -241,37 +314,37 @@ $('btn-unlock-bands').onclick = async () => {
   buildChips();
   try {
     const r = await post('/api/band-lock', { lte: [], nr5g: [] });
-    if (r.ok) toast('Đã bỏ khóa tất cả băng tần', 'success');
-  } catch { toast('Lỗi kết nối', 'error'); }
+    if (r.ok) toast(t('toast_unlocked'), 'success');
+  } catch { toast(t('toast_error'), 'error'); }
 };
 
 qsa('.mode-btn').forEach(btn => {
   btn.onclick = async () => {
-    toast('Đang thay đổi chế độ...');
+    toast(t('toast_changing_mode'));
     try {
       const r = await post('/api/network-mode', { mode: btn.dataset.mode });
       if (r.ok) {
         qsa('.mode-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        toast('Đã cập nhật chế độ mạng', 'success');
+        toast(t('toast_mode_updated'), 'success');
       }
-    } catch { toast('Lỗi kết nối', 'error'); }
+    } catch { toast(t('toast_error'), 'error'); }
   };
 });
 
 $('btn-reset-traffic').onclick = async () => {
   try {
     await post('/api/traffic-reset', {});
-    toast('Đã reset bộ đếm traffic', 'success');
-  } catch { toast('Lỗi kết nối', 'error'); }
+    toast(t('toast_traffic_reset'), 'success');
+  } catch { toast(t('toast_error'), 'error'); }
 };
 
 $('btn-reconnect').onclick = async () => {
-  toast('Đang kết nối lại...');
+  toast(t('toast_reconnecting'));
   try {
     const r = await post('/api/reconnect', {});
-    if (r.ok) toast('Đã gửi lệnh kết nối lại', 'success');
-  } catch { toast('Lỗi kết nối', 'error'); }
+    if (r.ok) toast(t('toast_reconnect_sent'), 'success');
+  } catch { toast(t('toast_error'), 'error'); }
 };
 
 // ── Connected devices ──────────────────────────────────────────────────────
@@ -300,7 +373,7 @@ function renderClients(list) {
   set('client-count2', total);
 
   if (!total) {
-    wrap.innerHTML = '<div class="client-empty">Không có thiết bị nào</div>';
+    wrap.innerHTML = `<div class="client-empty">${t('no_devices')}</div>`;
     return;
   }
 
@@ -345,12 +418,12 @@ async function loadClients() {
     const list = await fetch(API + '/api/devices').then(r => r.json());
     renderClients(list);
   } catch {
-    $('client-list').innerHTML = '<div class="client-empty">Không thể tải danh sách</div>';
+    $('client-list').innerHTML = `<div class="client-empty">${t('load_error')}</div>`;
   }
 }
 
 $('btn-refresh-clients').onclick = () => {
-  $('client-list').innerHTML = '<div class="client-empty">Đang tải...</div>';
+  $('client-list').innerHTML = `<div class="client-empty">${t('loading')}</div>`;
   loadClients();
 };
 
@@ -560,9 +633,7 @@ function updatePollingBtn() {
   if (!btn) return;
   btn.classList.toggle('polling-on',  _pollingEnabled);
   btn.classList.toggle('polling-off', !_pollingEnabled);
-  btn.title = _pollingEnabled
-    ? 'Đang polling — nhấn để tắt (nhường port cho tool khác)'
-    : 'Polling đã tắt — nhấn để bật lại';
+  btn.title = t(_pollingEnabled ? 'poll_active_title' : 'poll_paused_title');
 }
 
 fetch(API + '/api/polling').then(r => r.json()).then(d => {
@@ -576,10 +647,20 @@ $('btn-polling-toggle').onclick = async () => {
     if (r.ok) {
       _pollingEnabled = r.enabled;
       updatePollingBtn();
-      toast(
-        _pollingEnabled ? 'Đã bật modem polling' : 'Đã tắt polling — port nhường cho tool khác',
-        _pollingEnabled ? 'success' : ''
-      );
+      toast(t(_pollingEnabled ? 'toast_poll_on' : 'toast_poll_off'),
+            _pollingEnabled ? 'success' : '');
     }
-  } catch { toast('Lỗi kết nối', 'error'); }
+  } catch { toast(t('toast_error'), 'error'); }
 };
+
+// ── Language switch ─────────────────────────────────────────────────────────
+
+$('btn-lang').onclick = () => {
+  currentLang = currentLang === 'vi' ? 'en' : 'vi';
+  localStorage.setItem('5gdash_lang', currentLang);
+  document.documentElement.lang = currentLang;
+  applyLang();
+  updatePollingBtn();
+};
+
+applyLang();

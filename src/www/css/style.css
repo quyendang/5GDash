@@ -105,6 +105,15 @@ body {
 #btn-polling-toggle.polling-on  { color: var(--green); }
 #btn-polling-toggle.polling-off { color: var(--muted); }
 
+.lang-btn {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;
+  width: 32px; height: 28px; border-radius: 8px;
+  border: 1.5px solid var(--border); background: var(--bg);
+  color: var(--text2); cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.lang-btn:hover { background: var(--border); color: var(--text); }
+
 /* ── Page ────────────────────────────────────────────────────────────────── */
 .page {
   display: flex; flex-direction: column; gap: var(--gap);

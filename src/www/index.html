@@ -22,7 +22,7 @@
   <span class="topbar-title">Dashboard</span>
   <div class="topbar-actions">
     <!-- Wifi clients badge -->
-    <button class="topbar-btn badge-wrap" id="btn-clients-toggle" title="Thiết bị kết nối">
+    <button class="topbar-btn badge-wrap" id="btn-clients-toggle">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/>
         <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/>
@@ -30,13 +30,15 @@
       <span class="topbar-badge" id="client-count">0</span>
     </button>
     <!-- Polling toggle -->
-    <button class="topbar-btn" id="btn-polling-toggle" title="Tắt/bật modem polling">
+    <button class="topbar-btn" id="btn-polling-toggle">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/>
       </svg>
     </button>
+    <!-- Language switch -->
+    <button class="topbar-btn lang-btn" id="btn-lang">VI</button>
     <!-- Connection status dot -->
-    <span class="status-dot" id="conn-dot" title="Trạng thái kết nối"></span>
+    <span class="status-dot" id="conn-dot"></span>
   </div>
 </header>
 
@@ -51,7 +53,7 @@
         </svg>
       </div>
       <div class="card-head-text">
-        <div class="card-eyebrow">THIẾT BỊ</div>
+        <div class="card-eyebrow" data-i18n="device_title">THIẾT BỊ</div>
         <div class="card-heading" id="sys-hostname">5G CPE</div>
       </div>
       <span class="badge-mode" id="badge-netmode">--</span>
@@ -59,11 +61,11 @@
 
     <div class="stat-pills">
       <div class="pill">
-        <div class="pill-label">Hoạt động</div>
+        <div class="pill-label" data-i18n="uptime">Hoạt động</div>
         <div class="pill-value" id="sys-uptime">--</div>
       </div>
       <div class="pill">
-        <div class="pill-label">Nhiệt độ</div>
+        <div class="pill-label" data-i18n="temperature">Nhiệt độ</div>
         <div class="pill-value red" id="sys-temp">--</div>
       </div>
       <div class="pill">
@@ -103,7 +105,7 @@
         </svg>
       </div>
       <div class="card-head-text">
-        <div class="card-eyebrow">TÍN HIỆU</div>
+        <div class="card-eyebrow" data-i18n="signal_title">TÍN HIỆU</div>
         <div class="card-heading" id="sig-heading">-- / --</div>
       </div>
       <div class="signal-bars" id="sig-bars">
@@ -153,12 +155,12 @@
 
     <!-- Detail info grid -->
     <div class="info-grid" id="info-grid">
-      <div class="info-item"><span class="info-k">Nhà mạng</span><span class="info-v" id="v-op">--</span></div>
+      <div class="info-item"><span class="info-k" data-i18n="operator">Nhà mạng</span><span class="info-v" id="v-op">--</span></div>
       <div class="info-item"><span class="info-k">Cell ID</span><span class="info-v mono" id="v-cell">--</span></div>
       <div class="info-item"><span class="info-k">PCI</span><span class="info-v mono" id="v-pci">--</span></div>
       <div class="info-item"><span class="info-k">ARFCN</span><span class="info-v mono" id="v-arfcn">--</span></div>
       <div class="info-item"><span class="info-k">MCC/MNC</span><span class="info-v mono" id="v-mcc">--</span></div>
-      <div class="info-item"><span class="info-k">Trạng thái</span><span class="info-v" id="v-state">--</span></div>
+      <div class="info-item"><span class="info-k" data-i18n="cell_state">Trạng thái</span><span class="info-v" id="v-state">--</span></div>
     </div>
 
     <!-- CA chips -->
@@ -175,8 +177,8 @@
         </svg>
       </div>
       <div class="card-head-text">
-        <div class="card-eyebrow">LƯU LƯỢNG</div>
-        <div class="card-heading">Tốc độ mạng</div>
+        <div class="card-eyebrow" data-i18n="traffic_title">LƯU LƯỢNG</div>
+        <div class="card-heading" data-i18n="network_speed">Tốc độ mạng</div>
       </div>
       <button class="btn-ghost" id="btn-reset-traffic">↺ Reset</button>
     </div>
@@ -224,14 +226,14 @@
         </svg>
       </div>
       <div class="card-head-text">
-        <div class="card-eyebrow">KHÓA BĂNG TẦN</div>
+        <div class="card-eyebrow" data-i18n="bandlock_title">KHÓA BĂNG TẦN</div>
         <div class="card-heading">Band Lock</div>
       </div>
       <span class="lock-badge" id="lock-badge">Auto</span>
     </div>
 
     <div class="mode-row" id="mode-row">
-      <button class="mode-btn active" data-mode="auto">Tự động</button>
+      <button class="mode-btn active" data-mode="auto" data-i18n="auto">Tự động</button>
       <button class="mode-btn" data-mode="4g">4G only</button>
       <button class="mode-btn" data-mode="5g">5G only</button>
       <button class="mode-btn" data-mode="4g5g">4G + 5G</button>
@@ -247,8 +249,8 @@
     </div>
 
     <div class="band-actions">
-      <button class="btn-primary" id="btn-apply-bands">Áp dụng</button>
-      <button class="btn-secondary" id="btn-unlock-bands">Bỏ khóa tất cả</button>
+      <button class="btn-primary" id="btn-apply-bands" data-i18n="apply">Áp dụng</button>
+      <button class="btn-secondary" id="btn-unlock-bands" data-i18n="unlock_all">Bỏ khóa tất cả</button>
     </div>
   </div>
 
@@ -263,13 +265,13 @@
         </svg>
       </div>
       <div class="card-head-text">
-        <div class="card-eyebrow">QUẢN LÝ</div>
-        <div class="card-heading">Thiết bị kết nối (<span id="client-count2">0</span>)</div>
+        <div class="card-eyebrow" data-i18n="mgmt_title">QUẢN LÝ</div>
+        <div class="card-heading"><span data-i18n="connected_devices">Thiết bị kết nối</span> (<span id="client-count2">0</span>)</div>
       </div>
       <button class="btn-ghost" id="btn-refresh-clients">↺</button>
     </div>
     <div id="client-list" class="client-list">
-      <div class="client-empty">Đang tải...</div>
+      <div class="client-empty" data-i18n="loading">Đang tải...</div>
     </div>
   </div>
 
@@ -290,13 +292,13 @@
         <div class="card-eyebrow">MODULE 5G</div>
         <div class="card-heading" id="m-model">RM520N-GL</div>
       </div>
-      <button class="btn-danger-ghost" id="btn-reconnect">Kết nối lại</button>
+      <button class="btn-danger-ghost" id="btn-reconnect" data-i18n="reconnect">Kết nối lại</button>
     </div>
     <div class="info-grid">
       <div class="info-item"><span class="info-k">Firmware</span><span class="info-v mono small" id="m-fw">--</span></div>
       <div class="info-item"><span class="info-k">IMEI</span><span class="info-v mono" id="m-imei">--</span></div>
       <div class="info-item"><span class="info-k">ICCID</span><span class="info-v mono small" id="m-iccid">--</span></div>
-      <div class="info-item"><span class="info-k">Nhiệt độ</span><span class="info-v" id="m-temp">--</span></div>
+      <div class="info-item"><span class="info-k" data-i18n="temperature">Nhiệt độ</span><span class="info-v" id="m-temp">--</span></div>
     </div>
   </div>
 
